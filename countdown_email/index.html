@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Countdown</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 400px; margin: auto; }
+        label { display: block; margin-top: 10px; }
+        input[type="color"], input[type="datetime-local"], input[type="text"] {
+            width: 100%; padding: 8px; margin-top: 5px;
+        }
+        button { margin-top: 15px; padding: 10px; width: 100%; background: #1E3C78; color: #fff; border: none; cursor: pointer; }
+        button:hover { background: #2E4C88; }
+        .output { margin-top: 20px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Gerador de Countdown</h2>
+        <label for="end">Data e hora final:</label>
+        <input type="datetime-local" id="end">
+
+        <label for="bg">Cor de fundo:</label>
+        <input type="color" id="bg" value="#1E3C78">
+
+        <label for="label">Cor do label:</label>
+        <input type="color" id="label" value="#FFFFFF">
+
+        <label for="digit">Cor dos dígitos:</label>
+        <input type="color" id="digit" value="#FFD700">
+
+        <button onclick="generateURL()">Gerar URL</button>
+
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        function generateURL() {
+            const baseURL = window.location.origin + "/countdown";
+            const end = document.getElementById("end").value;
+            const bg = document.getElementById("bg").value;
+            const label = document.getElementById("label").value;
+            const digit = document.getElementById("digit").value;
+
+            if (!end) {
+                alert("Por favor, selecione a data e hora final.");
+                return;
+            }
+
+            const isoEnd = end.replace("T", "T"); // já está no formato ISO
+            const url = `${baseURL}?end=${isoEnd}&bg=${encodeURIComponent(bg)}&label=${encodeURIComponent(label)}&digit=${encodeURIComponent(digit)}`;
+
+            document.getElementById("output").innerHTML = `
+                <p><strong>URL gerada:</strong></p>
+                <p><a href="${url}" target="_blank">${url}</a></p>
+  </script>
+</body>

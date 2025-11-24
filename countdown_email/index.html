@@ -13,6 +13,7 @@
     button { margin-top: 15px; padding: 10px; width: 100%; background: #1E3C78; color: #fff; border: none; cursor: pointer; }
     button:disabled { background: #ccc; cursor: not-allowed; }
     .output { margin-top: 20px; word-break: break-all; }
+    .preview img { max-width: 100%; margin-top: 15px; border: 1px solid #ccc; }
 </style>
 </head>
 <body>
@@ -22,14 +23,15 @@
     <input type="datetime-local" id="end">
 
     <label for="bg">Cor de fundo:</label>
-    <input type="color" id="bg" value="#1E3C78">
+    <input type="color" id="bg" value="#000000">
 
     <label for="digit">Cor dos dígitos:</label>
-    <input type="color" id="digit" value="#FFD700">
+    <input type="color" id="digit" value="#FFFFFF">
 
     <button id="generateBtn" disabled onclick="generateURL()">Gerar URL</button>
 
     <div class="output" id="output"></div>
+    <div class="preview" id="preview"></div>
 </div>
 
 <script>
@@ -48,9 +50,8 @@ function generateURL() {
     const url = `${baseURL}?end=${end}&bg=${encodeURIComponent(bg)}&digit=${encodeURIComponent(digit)}`;
     document.getElementById("output").innerHTML = `
         <p><strong>URL gerada:</strong></p>
-        <p>${url}${url}</a></p>
+        <p>${url}</p>
+        <p>Use este código no e-mail:</p>
+        <code>&lt;img src="${url}" style="display:block;max-width:100%" /&gt;</code>
     `;
-}
-</script>
-</body>
-</html>
+    document.getElementById("preview").innerHTML = `<img src="${url}" alt="Pré-visualização do Countdown">`;

@@ -1,7 +1,9 @@
+
 from flask import Flask, request, send_file
 from PIL import Image, ImageDraw, ImageFont
 import io
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -9,41 +11,55 @@ app = Flask(__name__)
 def home():
     return (
         "API de Countdown ativa. "
-        "Use a rota /countdown?end=YYYY-MM-DDTHH:MM:SS para gerar o contador."
+        "Use /countdown?end=YYYY-MM-DDTHH:MM:SS&bg=#HEX&label=#HEX&digit=#HEX "
+        "para gerar o contador."
     )
 
 @app.route("/countdown")
 def countdown():
-    # Recebe a data final via query string
+    # Parâmetro obrigatório: data final
     end_date_str = request.args.get("end")
     if not end_date_str:
-        return (
-            "Parâmetro 'end' é obrigatório. Exemplo: ?end=2025-12-31T23:59:59",
-            400,
-        )
+        return "Parâmetro 'end' é obrigatório. Exemplo: ?end=2025-12-31T23:59:59", 400
+
+    # Fuso horário fixo
+    tz = pytz.timezone("America/Sao_Paulo")
+    now = datetime.now(tz)
 
     try:
         end_date = datetime.fromisoformat(end_date_str)
+        end_date = tz.localize(end_date)
     except ValueError:
         return "Formato inválido. Use: YYYY-MM-DDTHH:MM:SS", 400
 
-    now = datetime.now()
     diff = end_date - now
 
+    # Validação do limite (30 dias)
+    if diff.days > 30:
+        return "O limite máximo é 30 dias.", 400
+
+    # Texto do contador
     if diff.total_seconds() <= 0:
         text = "Oferta encerrada!"
     else:
-        days = diff.days
-        hours = diff.seconds // 3600
-        minutes = (diff.seconds % 3600) // 60
-        seconds = diff.seconds % 60
-        text = f"{days}d {hours}h {minutes}m {seconds}s"
+        dias = diff.days
+        horas = diff.seconds // 3600
+        minutos = (diff.seconds % 3600) // 60
+        segundos = diff.seconds % 60
+        text = f"{dias} dias {horas} horas {minutos} minutos {segundos} segundos"
+
+    # Cores dinâmicas
+    bg_color = request.args.get("bg", "#1E3C78")
+    label_color = request.args.get("label", "#FFFFFF")
+    digit_color = request.args.get("digit", "#FFD700")
 
     # Criar imagem
-    img = Image.new("RGB", (400, 100), color=(30, 60, 120))
+    img = Image.new("RGB", (500, 120), color=bg_color)
     draw = ImageDraw.Draw(img)
     font = ImageFont.load_default()
-    draw.text((10, 40), text, font=font, fill=(255, 255, 255))
+
+    # Desenhar texto (label + dígitos)
+    draw.text((10, 50), text, font=font, fill=digit_color)
 
     # Retornar imagem
     buf = io.BytesIO()
@@ -51,4 +67,3 @@ def countdown():
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
 
-# Não usar app.run() no Render, pois Gunicorn gerencia isso

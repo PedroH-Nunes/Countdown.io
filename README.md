@@ -48,3 +48,7 @@ def countdown():
 
     buf = io.BytesIO()
     img.save(buf, format='PNG')
+
+git add README.md
+git commit -m "Atualizando README com conteúdo da pasta countdown_email"
+git push origin main

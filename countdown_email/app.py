@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Servir HTML na rota raiz
 @app.route("/")
 def home():
-    return send_from_directory(os.getcwd(), "index.html")
+    return send_from_directory(os.path.dirname(__file__), "index.html")
 
 @app.route("/countdown")
 def countdown():
@@ -66,3 +66,4 @@ def countdown():
     img.save(buf, format="PNG")
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
+

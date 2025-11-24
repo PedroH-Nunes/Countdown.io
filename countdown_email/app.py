@@ -1,19 +1,16 @@
-
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, send_from_directory
 from PIL import Image, ImageDraw, ImageFont
 import io
 from datetime import datetime
 import pytz
+import os
 
 app = Flask(__name__)
 
+# Servir HTML na rota raiz
 @app.route("/")
 def home():
-    return (
-        "API de Countdown ativa. "
-        "Use /countdown?end=YYYY-MM-DDTHH:MM:SS&bg=#HEX&label=#HEX&digit=#HEX "
-        "para gerar o contador."
-    )
+    return send_from_directory(os.getcwd(), "index.html")
 
 @app.route("/countdown")
 def countdown():
@@ -54,7 +51,6 @@ def countdown():
 
     # Cores dinâmicas via query string
     bg_color = request.args.get("bg", "#1E3C78")
-    label_color = request.args.get("label", "#FFFFFF")
     digit_color = request.args.get("digit", "#FFD700")
 
     # Criar imagem
@@ -62,7 +58,7 @@ def countdown():
     draw = ImageDraw.Draw(img)
     font = ImageFont.load_default()
 
-    # Desenhar texto (usando cor dos dígitos)
+    # Desenhar texto
     draw.text((10, 50), text, font=font, fill=digit_color)
 
     # Retornar imagem como PNG
@@ -70,5 +66,3 @@ def countdown():
     img.save(buf, format="PNG")
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
-
-# Gunicorn gerencia execução no Render

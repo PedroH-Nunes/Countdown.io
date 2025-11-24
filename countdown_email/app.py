@@ -22,13 +22,17 @@ def countdown():
     if not end_date_str:
         return "Parâmetro 'end' é obrigatório. Exemplo: ?end=2025-12-31T23:59:59", 400
 
-    # Fuso horário fixo
+    # Fuso horário fixo America/Sao_Paulo
     tz = pytz.timezone("America/Sao_Paulo")
     now = datetime.now(tz)
 
     try:
+        # Converter data final para timezone correto
         end_date = datetime.fromisoformat(end_date_str)
-        end_date = tz.localize(end_date)
+        if end_date.tzinfo is None:
+            end_date = tz.localize(end_date)
+        else:
+            end_date = end_date.astimezone(tz)
     except ValueError:
         return "Formato inválido. Use: YYYY-MM-DDTHH:MM:SS", 400
 
@@ -38,7 +42,7 @@ def countdown():
     if diff.days > 30:
         return "O limite máximo é 30 dias.", 400
 
-    # Texto do contador
+    # Texto do contador em português
     if diff.total_seconds() <= 0:
         text = "Oferta encerrada!"
     else:
@@ -48,7 +52,7 @@ def countdown():
         segundos = diff.seconds % 60
         text = f"{dias} dias {horas} horas {minutos} minutos {segundos} segundos"
 
-    # Cores dinâmicas
+    # Cores dinâmicas via query string
     bg_color = request.args.get("bg", "#1E3C78")
     label_color = request.args.get("label", "#FFFFFF")
     digit_color = request.args.get("digit", "#FFD700")
@@ -58,12 +62,13 @@ def countdown():
     draw = ImageDraw.Draw(img)
     font = ImageFont.load_default()
 
-    # Desenhar texto (label + dígitos)
+    # Desenhar texto (usando cor dos dígitos)
     draw.text((10, 50), text, font=font, fill=digit_color)
 
-    # Retornar imagem
+    # Retornar imagem como PNG
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
 
+# Gunicorn gerencia execução no Render

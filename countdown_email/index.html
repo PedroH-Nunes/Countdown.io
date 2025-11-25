@@ -17,7 +17,6 @@
   button { width:100%; padding:12px; border:none; border-radius:8px; font-weight:700; cursor:pointer; }
   #generate { background:#007bff; color:#fff; }
   #generate:hover { background:#0067d6; }
-  .preview { margin-top:16px; text-align:center; }
   .preview img { max-width:100%; border-radius:8px; margin-top:16px; }
   .live-counter { font-size:24px; font-weight:bold; margin-top:10px; color:#007bff; }
   textarea {
@@ -114,16 +113,27 @@
   }
 
   genBtn.addEventListener('click', () => {
-    cacheBuster = `_t=${Date.now()}`;
+    try{
+      const url = buildUrl();
+      const cacheBuster = `_t=${Date.now()}`;
       const finalUrl = `${url}&${cacheBuster}`;
 
+      // Preview da imagem
       previewDiv.innerHTML = `${finalUrl}`;
 
+      // Snippet para e-mail
       const code = `<table align="center"><tbody><tr><td>${finalUrl}</td></tr></tbody></table>`;
       codeTa.value = code;
 
+      // Contador ao vivo
       const endDate = new Date(endInput.value).getTime();
-     Listener('click', async () => {
+      startLiveCountdown(endDate);
+    }catch(err){
+      alert(err.message || 'Erro ao gerar URL');
+    }
+  });
+
+  copyBtn.addEventListener('click', async () => {
     try{
       await navigator.clipboard.writeText(codeTa.value);
       copyBtn.textContent = 'Copiado!';

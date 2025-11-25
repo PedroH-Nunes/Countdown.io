@@ -19,7 +19,7 @@ def countdown_image():
     if not end_date_str:
         return "Parâmetro 'end' é obrigatório. Exemplo: ?end=2025-12-31T23:59:59", 400
 
-    # Timezone
+    # Timezone fixo para São Paulo
     tz = pytz.timezone("America/Sao_Paulo")
     now = datetime.now(tz)
 

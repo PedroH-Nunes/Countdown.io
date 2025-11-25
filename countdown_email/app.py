@@ -14,13 +14,16 @@ def home():
 
 @app.route("/countdown-image")
 def countdown_image():
+    # Parâmetro obrigatório: data final
     end_date_str = request.args.get("end")
     if not end_date_str:
         return "Parâmetro 'end' é obrigatório. Exemplo: ?end=2025-12-31T23:59:59", 400
 
+    # Timezone
     tz = pytz.timezone("America/Sao_Paulo")
     now = datetime.now(tz)
 
+    # Converter data final
     try:
         end_date = datetime.fromisoformat(end_date_str)
         if end_date.tzinfo is None:
@@ -30,20 +33,24 @@ def countdown_image():
     except ValueError:
         return "Formato inválido. Use: YYYY-MM-DDTHH:MM:SS", 400
 
+    # Diferença de tempo
     diff = end_date - now
     dias = max(diff.days, 0)
     horas = max(diff.seconds // 3600, 0)
     minutos = max((diff.seconds % 3600) // 60, 0)
     segundos = max(diff.seconds % 60, 0)
 
+    # Dimensões e cores
     largura, altura = 900, 250
     bg_color = request.args.get("bg", "#000000")
     digit_color = request.args.get("digit", "#FFFFFF")
-    box_color = "#1E1E1E"
+    box_color = request.args.get("box", "#1E1E1E")
 
-    fonte_num = ImageFont.load_default()
-    fonte_label = ImageFont.load_default()
+    # Fontes (usando padrão Pillow)
+    fonte_num = ImageFont.truetype("arial.ttf", 80)
+    fonte_label = ImageFont.truetype("arial.ttf", 30)
 
+    # Criar imagem
     img = Image.new("RGB", (largura, altura), color=bg_color)
     draw = ImageDraw.Draw(img)
 
@@ -59,10 +66,21 @@ def countdown_image():
         box_y0 = 40
         box_x1 = box_x0 + box_width
         box_y1 = box_y0 + box_height
-        draw.rounded_rectangle([box_x0, box_y0, box_x1, box_y1], radius=20, fill=box_color)
-        draw.text((x - 20, 80), str(valor).zfill(2), font=fonte_num, fill=digit_color)
-        draw.text((x - 30, 150), labels[i], font=fonte_label, fill=digit_color)
 
+        # Caixa arredondada
+        draw.rounded_rectangle([box_x0, box_y0, box_x1, box_y1], radius=20, fill=box_color)
+
+        # Número centralizado
+        num_text = str(valor).zfill(2)
+        num_w, num_h = draw.textsize(num_text, font=fonte_num)
+        draw.text((x - num_w // 2, 70), num_text, font=fonte_num, fill=digit_color)
+
+        # Label centralizada
+        label_text = labels[i]
+        label_w, label_h = draw.textsize(label_text, font=fonte_label)
+        draw.text((x - label_w // 2, 160), label_text, font=fonte_label, fill=digit_color)
+
+    # Retornar imagem
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)

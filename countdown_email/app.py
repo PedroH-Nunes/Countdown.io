@@ -40,15 +40,22 @@ def countdown_image():
     minutos = max((diff.seconds % 3600) // 60, 0)
     segundos = max(diff.seconds % 60, 0)
 
-    # Dimensões e cores
-    largura, altura = 900, 250
+    # Dimensões (parametrizáveis)
+    largura = int(request.args.get("w", 900))
+    altura = int(request.args.get("h", 250))
+
+    # Cores
     bg_color = request.args.get("bg", "#000000")
     digit_color = request.args.get("digit", "#FFFFFF")
     box_color = request.args.get("box", "#1E1E1E")
 
-    # Fontes (usando padrão Pillow)
-    fonte_num = ImageFont.truetype("arial.ttf", 80)
-    fonte_label = ImageFont.truetype("arial.ttf", 30)
+    # Fontes (Arial ou fallback)
+    font_path = "arial.ttf"
+    if not os.path.exists(font_path):
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+
+    fonte_num = ImageFont.truetype(font_path, int(altura * 0.32))
+    fonte_label = ImageFont.truetype(font_path, int(altura * 0.12))
 
     # Criar imagem
     img = Image.new("RGB", (largura, altura), color=bg_color)
@@ -61,9 +68,9 @@ def countdown_image():
     for i, valor in enumerate(valores):
         x = i * bloco_largura + bloco_largura // 2
         box_width = bloco_largura - 40
-        box_height = 150
+        box_height = int(altura * 0.6)
         box_x0 = x - box_width // 2
-        box_y0 = 40
+        box_y0 = int(altura * 0.15)
         box_x1 = box_x0 + box_width
         box_y1 = box_y0 + box_height
 
@@ -73,12 +80,12 @@ def countdown_image():
         # Número centralizado
         num_text = str(valor).zfill(2)
         num_w, num_h = draw.textsize(num_text, font=fonte_num)
-        draw.text((x - num_w // 2, 70), num_text, font=fonte_num, fill=digit_color)
+        draw.text((x - num_w // 2, box_y0 + (box_height * 0.25)), num_text, font=fonte_num, fill=digit_color)
 
         # Label centralizada
         label_text = labels[i]
         label_w, label_h = draw.textsize(label_text, font=fonte_label)
-        draw.text((x - label_w // 2, 160), label_text, font=fonte_label, fill=digit_color)
+        draw.text((x - label_w // 2, box_y1 - label_h - 10), label_text, font=fonte_label, fill=digit_color)
 
     # Retornar imagem
     buf = io.BytesIO()

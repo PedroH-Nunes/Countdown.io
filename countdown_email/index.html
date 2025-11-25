@@ -8,43 +8,42 @@
 <style>
     body {
         font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #0f0f0f, #1e1e1e);
-        color: #fff;
+        background: #f4f4f4;
+        color: #333;
         margin: 0;
         padding: 20px;
     }
     .container {
-        max-width: 900px;
+        max-width: 700px;
         margin: auto;
-        background: #131313;
+        background: #fff;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        text-align: center;
     }
     h1 {
-        text-align: center;
         margin-bottom: 20px;
-        color: #FFD700;
+        color: #222;
     }
     .form-group {
         margin-bottom: 15px;
+        text-align: left;
     }
     label {
         display: block;
         margin-bottom: 6px;
         font-weight: bold;
     }
-    input[type="datetime-local"], input[type="color"], select {
+    input[type="datetime-local"], input[type="color"] {
         width: 100%;
         padding: 10px;
         border-radius: 8px;
-        border: 1px solid #333;
-        background: #1e1e1e;
-        color: #fff;
+        border: 1px solid #ccc;
     }
     button {
-        background: #FFD700;
-        color: #000;
+        background: #007bff;
+        color: #fff;
         font-weight: bold;
         padding: 12px 20px;
         border: none;
@@ -55,24 +54,20 @@
         font-size: 16px;
     }
     button:hover {
-        background: #e6c200;
-    }
-    .preview {
-        margin-top: 20px;
-        text-align: center;
+        background: #0056b3;
     }
     .preview img {
         max-width: 100%;
+        margin-top: 20px;
         border-radius: 8px;
-        margin-top: 10px;
     }
     .code-block {
-        background: #0f0f0f;
+        background: #f0f0f0;
         padding: 10px;
         border-radius: 8px;
         margin-top: 15px;
         font-family: monospace;
-        color: #FFD700;
+        color: #333;
         font-size: 14px;
         word-break: break-word;
         position: relative;
@@ -81,8 +76,8 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        background: #FFD700;
-        color: #000;
+        background: #007bff;
+        color: #fff;
         border: none;
         padding: 6px 10px;
         border-radius: 6px;
@@ -110,22 +105,12 @@
         <label for="box">Cor das caixas:</label>
         <input type="color" id="box" value="#1E1E1E">
     </div>
-    <div class="form-group">
-        <label for="size">Tamanho da imagem:</label>
-        <select id="size">
-            <option value="900x250">900x250 (padrão)</option>
-            <option value="600x160">600x160 (compacto)</option>
-            <option value="700x200">700x200</option>
-        </select>
-    </div>
     <button id="generate">Gerar Countdown</button>
 
-    <div class="preview" id="preview">
-        <p>Preview aparecerá aqui...</p>
-    </div>
+    <div class="preview" id="preview"></div>
     <div class="code-block" id="code">
         <button class="copy-btn" id="copyBtn">Copiar</button>
-        &lt;table align="center" cellpadding="0" cellspacing="0" border="0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;img src="" style="display:block;max-width:100%;" alt="Contagem regressiva"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+        &lt;table align="center"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;img src="" style="display:block;max-width:100%;" alt="Contagem regressiva"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
     </div>
 </div>
 
@@ -135,8 +120,6 @@ document.getElementById('generate').addEventListener('click', function() {
     const bg = encodeURIComponent(document.getElementById('bg').value);
     const digit = encodeURIComponent(document.getElementById('digit').value);
     const box = encodeURIComponent(document.getElementById('box').value);
-    const size = document.getElementById('size').value.split('x');
-    const w = size[0], h = size[1];
 
     if (!end) {
         alert('Por favor, selecione a data limite.');
@@ -144,13 +127,11 @@ document.getElementById('generate').addEventListener('click', function() {
     }
 
     const baseUrl = window.location.origin; // Ajuste para seu domínio real
-    const url = `${baseUrl}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}&w=${w}&h=${h}`;
+    const url = `${baseUrl}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}`;
 
     // Preview
-    document.getElementById('preview').innerHTML = `${url}&_t=${Date.now()}`;
-
-    // Código para e-mail
-    const code = `<table align="center" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td>${url}</td></tr></tbody></table>`;
+    document.getElementById('preview').innerHTML = `<img src="${url}&_t=${Date.now // Código para e-mail
+    const code = `<table align="center"><tbody><tr><td>${url}</td></tr></tbody></table>`;
     document.getElementById('code').innerHTML = `<button class="copy-btn" id="copyBtn">Copiar</button>${code}`;
 
     // Botão copiar

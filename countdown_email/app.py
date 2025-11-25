@@ -1,3 +1,4 @@
+
 from flask import Flask, request, send_file, send_from_directory
 from PIL import Image, ImageDraw, ImageFont
 import io
@@ -7,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-# Caminho da fonte
+# Caminho da fonte (adicione Roboto-Bold.ttf na pasta fonts)
 FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts", "Roboto-Bold.ttf")
 
 @app.route("/")
@@ -16,12 +17,10 @@ def home():
 
 @app.route("/countdown")
 def countdown():
-    # Parâmetro obrigatório
     end_date_str = request.args.get("end")
     if not end_date_str:
         return "Parâmetro 'end' é obrigatório. Exemplo: ?end=2025-12-31T23:59:59", 400
 
-    # Fuso horário
     tz = pytz.timezone("America/Sao_Paulo")
     now = datetime.now(tz)
 
@@ -40,13 +39,17 @@ def countdown():
     minutos = max((diff.seconds % 3600) // 60, 0)
     segundos = max(diff.seconds % 60, 0)
 
-    # Configurações visuais
     largura, altura = 900, 250
     bg_color = request.args.get("bg", "#000000")
     digit_color = request.args.get("digit", "#FFFFFF")
     box_color = "#1E1E1E"
-    fonte_num = ImageFont.truetype(FONT_PATH, 80)
-    fonte_label = ImageFont.truetype(FONT_PATH, 28)
+
+    try:
+        fonte_num = ImageFont.truetype(FONT_PATH, 80)
+        fonte_label = ImageFont.truetype(FONT_PATH, 28)
+    except OSError:
+        fonte_num = ImageFont.load_default()
+        fonte_label = ImageFont.load_default()
 
     img = Image.new("RGB", (largura, altura), color=bg_color)
     draw = ImageDraw.Draw(img)
@@ -70,3 +73,16 @@ def countdown():
         # Número
         num_text = str(valor).zfill(2)
         w_num, h_num = draw.textsize(num_text, font=fonte_num)
+        draw.text((x - w_num // 2, 60), num_text, font=fonte_num, fill=digit_color)
+
+        # Label
+        w_lbl, h_lbl = draw.textsize(labels[i], font=fonte_label)
+        draw.text((x - w_lbl // 2, 150), labels[i], font=fonte_label, fill=digit_color)
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return send_file(buf, mimetype="image/png")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

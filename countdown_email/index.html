@@ -2,150 +2,137 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gerador de Countdown Dinâmico</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f4;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-    }
-    .container {
-        max-width: 700px;
-        margin: auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    h1 {
-        margin-bottom: 20px;
-        color: #222;
-    }
-    .form-group {
-        margin-bottom: 15px;
-        text-align: left;
-    }
-    label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: bold;
-    }
-    input[type="datetime-local"], input[type="color"] {
-        width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
-    button {
-        background: #007bff;
-        color: #fff;
-        font-weight: bold;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        width: 100%;
-        margin-top: 10px;
-        font-size: 16px;
-    }
-    button:hover {
-        background: #0056b3;
-    }
-    .preview img {
-        max-width: 100%;
-        margin-top: 20px;
-        border-radius: 8px;
-    }
-    .code-block {
-        background: #f0f0f0;
-        padding: 10px;
-        border-radius: 8px;
-        margin-top: 15px;
-        font-family: monospace;
-        color: #333;
-        font-size: 14px;
-        word-break: break-word;
-        position: relative;
-    }
-    .copy-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: #007bff;
-        color: #fff;
-        border: none;
-        padding: 6px 10px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-    }
+  body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:24px; color:#222; }
+  .container { max-width:720px; margin:0 auto; background:#fff; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,.08); padding:24px; }
+  h1 { margin:0 0 16px; font-size:22px; }
+  .form-group { margin-bottom:16px; }
+  label { display:block; font-weight:600; margin-bottom:8px; }
+  input[type="datetime-local"], input[type="color"] {
+    width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; background:#fff;
+  }
+  button { width:100%; padding:12px 16px; border:none; border-radius:8px; font-weight:700; cursor:pointer; }
+  #generate { background:#007bff; color:#fff; }
+  #generate:hover { background:#0067d6; }
+  .preview img { max-width:100%; border-radius:8px; margin-top:16px; }
+  .code-wrap { margin-top:16px; }
+  .code-label { text-align:center; color:#555; margin-bottom:8px; }
+  textarea {
+    width:100%; min-height:120px; padding:12px; border:1px solid #ccc; border-radius:8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color:#222;
+  }
+  .copy-row { display:flex; gap:10px; margin-top:10px; }
+  .copy-row button { flex:1; }
 </style>
 </head>
 <body>
-<div class="container">
+  <div class="container">
     <h1>Gerador de Countdown Dinâmico</h1>
+
     <div class="form-group">
-        <label for="end">Data limite:</label>
-        <input type="datetime-local" id="end">
+      <label for="end">Data limite (America/Sao_Paulo):</label>
+      <input type="datetime-local" id="end" />
     </div>
+
     <div class="form-group">
-        <label for="bg">Cor de fundo:</label>
-        <input type="color" id="bg" value="#000000">
+      <label for="bg">Cor de fundo:</label>
+      <input type="color" id="bg" value="#000000" />
     </div>
+
     <div class="form-group">
-        <label for="digit">Cor dos números:</label>
-        <input type="color" id="digit" value="#FFFFFF">
+      <label for="digit">Cor dos números:</label>
+      <input type="color" id="digit" value="#FFFFFF" />
     </div>
+
     <div class="form-group">
-        <label for="box">Cor das caixas:</label>
-        <input type="color" id="box" value="#1E1E1E">
+      <label for="box">Cor das caixas:</label>
+      <input type="color" id="box" value="#1E1E1E" />
     </div>
+
     <button id="generate">Gerar Countdown</button>
 
     <div class="preview" id="preview"></div>
-    <div class="code-block" id="code">
-        <button class="copy-btn" id="copyBtn">Copiar</button>
-        &lt;table align="center"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;img src="" style="display:block;max-width:100%;" alt="Contagem regressiva"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+
+    <div class="code-wrap">
+      <div class="code-label">Copie este código e cole no seu template de e-mail (HTML):</div>
+      <textarea id="code" readonly>&lt;table align="center"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;img src="" style="display:block;max-width:100%;" alt="Contagem regressiva"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</textarea>
+      <div class="copy-row">
+        <button id="copy">Copiar código</button>
+        <button id="reset">Limpar</button>
+      </div>
     </div>
-</div>
+  </div>
 
 <script>
-const generateBtn = document.getElementById('generate');
-const previewDiv = document.getElementById('preview');
-const codeDiv = document.getElementById('code');
-const copyBtn = document.getElementById('copyBtn');
+(function(){
+  const endInput = document.getElementById('end');
+  const bgInput = document.getElementById('bg');
+  const digitInput = document.getElementById('digit');
+  const boxInput = document.getElementById('box');
+  const previewDiv = document.getElementById('preview');
+  const codeTa = document.getElementById('code');
+  const genBtn = document.getElementById('generate');
+  const copyBtn = document.getElementById('copy');
+  const resetBtn = document.getElementById('reset');
 
-generateBtn.addEventListener('click', function() {
-    const end = document.getElementById('end').value;
-    const bg = encodeURIComponent(document.getElementById('bg').value);
-    const digit = encodeURIComponent(document.getElementById('digit').value);
-    const box = encodeURIComponent(document.getElementById('box').value);
+  // Pré-preencher com +3 dias
+  function toIsoLocal(dt){
+    const pad = n => String(n).padStart(2,'0');
+    return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  }
+  const init = new Date(Date.now() + 3*24*3600*1000);
+  endInput.value = toIsoLocal(init);
 
-    if (!end) {
-        alert('Por favor, selecione a data limite.');
-        return;
+  function buildUrl(){
+    const end = endInput.value;
+    if(!end){ throw new Error('Informe a data limite.'); }
+    const bg    = encodeURIComponent(bgInput.value);
+    const digit = encodeURIComponent(digitInput.value);
+    const box   = encodeURIComponent(boxInput.value);
+    const base  = window.location.origin; // ajuste se usar outro domínio
+    return `${base}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}`;
+  }
+
+  genBtn.addEventListener('click', () => {
+    try{
+      const url = buildUrl();
+
+      // Preview com cache-buster
+      previewDiv.innerHTML = `${url}&_t=${Date.now()}`;
+
+      // Snippet em <table> compatível com e-mail
+      const code = `<table align="center"><tbody><tr><td><img src="${url}" style="display:block;max-width:100e = code;
+    }catch(err){
+      alert(err.message || 'Erro ao gerar URL');
     }
+  });
 
-    const baseUrl = window.location.origin; // Ajuste para seu domínio real
-    const url = `${baseUrl}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}`;
+  copyBtn.addEventListener('click', async () => {
+    try{
+      await navigator.clipboard.writeText(codeTa.value);
+      copyBtn.textContent = 'Copiado!';
+      setTimeout(() => copyBtn.textContent = 'Copiar código', 1500);
+    }catch{
+      // Fallback manual (seleciona a textarea)
+      codeTa.select();
+      document.execCommand('copy');
+      copyBtn.textContent = 'Copiado!';
+      setTimeout(() => copyBtn.textContent = 'Copiar código', 1500);
+    }
+  });
 
-    // Preview
-    previewDiv.innerHTML = `<img src="${url}&_t=${Date.now()}" alt="Contagem regress const code = `<table align="center"><tbody><tr><td>${url}</td></tr></tbody></table>`;
-    codeDiv.innerHTML = `<button class="copy-btn" id="copyBtn">Copiar</button>${code}`;
-
-    // Reatribuir evento ao botão copiar
-    document.getElementById('copyBtn').addEventListener('click', function() {
-        navigator.clipboard.writeText(code).then(() => {
-            this.textContent = 'Copiado!';
-            setTimeout(() => this.textContent = 'Copiar', 1500);
-        });
-    });
-});
+  resetBtn.addEventListener('click', () => {
+    endInput.value = toIsoLocal(new Date(Date.now() + 3*24*3600*1000));
+    bgInput.value = '#000000';
+    digitInput.value = '#FFFFFF';
+    boxInput.value = '#1E1E1E';
+    previewDiv.innerHTML = '';
+    codeTa.value = `<table align="center"><tbody><tr><td><img src="" style="display:block;max-width:100%;" alt="Contagem regressiva"></td></tr></tbody></table>`;
+  });
+})();
 </script>
 </body>
 </html>

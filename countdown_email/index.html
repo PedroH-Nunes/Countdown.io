@@ -18,7 +18,6 @@
   #generate { background:#007bff; color:#fff; }
   #generate:hover { background:#0067d6; }
   .preview img { max-width:100%; border-radius:8px; margin-top:16px; }
-  .live-counter { font-size:24px; font-weight:bold; margin-top:10px; color:#007bff; }
   textarea {
     width:100%; min-height:100px; padding:12px; border:1px solid #ccc; border-radius:8px;
     font-family: monospace; font-size:13px; color:#222;
@@ -29,7 +28,7 @@
 </head>
 <body>
 <div class="container">
-  <h1>Gerador de Countdown Dinâmico</h1>
+  <h1>Gerador de Countdown Dinâmico (GIF)</h1>
 
   <div class="form-group">
     <label for="end">Data limite:</label>
@@ -48,11 +47,9 @@
     <input type="color" id="box" value="#1E1E1E">
   </div>
 
-  <button id="generate">Gerar Countdown</button>
+  <button id="generate">Gerar Countdown GIF</button>
 
   <div class="preview" id="preview"></div>
-  <div class="live-counter" id="liveCounter"></div>
-
   <textarea id="code" readonly></textarea>
   <div class="actions">
     <button id="copy">Copiar código</button>
@@ -67,13 +64,10 @@
   const digitInput = document.getElementById('digit');
   const boxInput = document.getElementById('box');
   const previewDiv = document.getElementById('preview');
-  const liveCounter = document.getElementById('liveCounter');
   const codeTa = document.getElementById('code');
   const genBtn = document.getElementById('generate');
   const copyBtn = document.getElementById('copy');
   const resetBtn = document.getElementById('reset');
-
-  let countdownInterval;
 
   function toIsoLocal(dt){
     const pad = n => String(n).padStart(2,'0');
@@ -92,42 +86,12 @@
     return `${base}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}`;
   }
 
-  function startLiveCountdown(endDate){
-    clearInterval(countdownInterval);
-    function update(){
-      const now = new Date().getTime();
-      const diff = endDate - now;
-      if(diff <= 0){
-        liveCounter.textContent = "00:00:00:00";
-        clearInterval(countdownInterval);
-        return;
-      }
-      const days = Math.floor(diff / (1000*60*60*24));
-      const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-      const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
-      const seconds = Math.floor((diff % (1000*60)) / 1000);
-      liveCounter.textContent = `${String(days).padStart(2,'0')}:${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-    }
-    update();
-    countdownInterval = setInterval(update, 1000);
-  }
-
   genBtn.addEventListener('click', () => {
     try{
       const url = buildUrl();
-      const cacheBuster = `_t=${Date.now()}`;
-      const finalUrl = `${url}&${cacheBuster}`;
-
-      // Preview da imagem
-      previewDiv.innerHTML = `${finalUrl}`;
-
-      // Snippet para e-mail
-      const code = `<table align="center"><tbody><tr><td>${finalUrl}</td></tr></tbody></table>`;
+      previewDiv.innerHTML = `<imgl}`;
+      const code = `<table align="center"><tbody><tr><td>${url}</td></tr></tbody></table>`;
       codeTa.value = code;
-
-      // Contador ao vivo
-      const endDate = new Date(endInput.value).getTime();
-      startLiveCountdown(endDate);
     }catch(err){
       alert(err.message || 'Erro ao gerar URL');
     }
@@ -152,9 +116,7 @@
     digitInput.value = '#FFFFFF';
     boxInput.value = '#1E1E1E';
     previewDiv.innerHTML = '';
-    liveCounter.textContent = '';
     codeTa.value = '';
-    clearInterval(countdownInterval);
   });
 })();
 </script>

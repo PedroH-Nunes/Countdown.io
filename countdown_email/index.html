@@ -74,7 +74,20 @@
         font-family: monospace;
         color: #FFD700;
         font-size: 14px;
-        word-break: break-all;
+        word-break: break-word;
+        position: relative;
+    }
+    .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #FFD700;
+        color: #000;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
     }
 </style>
 </head>
@@ -111,7 +124,8 @@
         <p>Preview aparecerá aqui...</p>
     </div>
     <div class="code-block" id="code">
-        &lt;img src="" alt="Contagem regressiva" style="display:block;margin:auto;width:100%;max-width:600px;"&gt;
+        <button class="copy-btn" id="copyBtn">Copiar</button>
+        &lt;table align="center" cellpadding="0" cellspacing="0" border="0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;img src="" style="display:block;max-width:100%;" alt="Contagem regressiva"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
     </div>
 </div>
 
@@ -132,8 +146,20 @@ document.getElementById('generate').addEventListener('click', function() {
     const baseUrl = window.location.origin; // Ajuste para seu domínio real
     const url = `${baseUrl}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}&w=${w}&h=${h}`;
 
+    // Preview
     document.getElementById('preview').innerHTML = `${url}&_t=${Date.now()}`;
-    document.getElementById('code').textContent = `${url}`;
+
+    // Código para e-mail
+    const code = `<table align="center" cellpadding="0" cellspacing="0" border="0"><tbody><tr><td>${url}</td></tr></tbody></table>`;
+    document.getElementById('code').innerHTML = `<button class="copy-btn" id="copyBtn">Copiar</button>${code}`;
+
+    // Botão copiar
+    document.getElementById('copyBtn').addEventListener('click', function() {
+        navigator.clipboard.writeText(code).then(() => {
+            this.textContent = 'Copiado!';
+            setTimeout(() => this.textContent = 'Copiar', 1500);
+        });
+    });
 });
 </script>
 </body>

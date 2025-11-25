@@ -8,9 +8,6 @@ import os
 
 app = Flask(__name__)
 
-# Caminho da fonte (adicione Roboto-Bold.ttf na pasta fonts)
-FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts", "Roboto-Bold.ttf")
-
 @app.route("/")
 def home():
     return send_from_directory(os.path.dirname(__file__), "index.html")
@@ -44,12 +41,9 @@ def countdown():
     digit_color = request.args.get("digit", "#FFFFFF")
     box_color = "#1E1E1E"
 
-    try:
-        fonte_num = ImageFont.truetype(FONT_PATH, 80)
-        fonte_label = ImageFont.truetype(FONT_PATH, 28)
-    except OSError:
-        fonte_num = ImageFont.load_default()
-        fonte_label = ImageFont.load_default()
+    # Fonte padrão (sem Roboto)
+    fonte_num = ImageFont.load_default()
+    fonte_label = ImageFont.load_default()
 
     img = Image.new("RGB", (largura, altura), color=bg_color)
     draw = ImageDraw.Draw(img)
@@ -72,12 +66,10 @@ def countdown():
 
         # Número
         num_text = str(valor).zfill(2)
-        w_num, h_num = draw.textsize(num_text, font=fonte_num)
-        draw.text((x - w_num // 2, 60), num_text, font=fonte_num, fill=digit_color)
+        draw.text((x - 20, 80), num_text, font=fonte_num, fill=digit_color)
 
         # Label
-        w_lbl, h_lbl = draw.textsize(labels[i], font=fonte_label)
-        draw.text((x - w_lbl // 2, 150), labels[i], font=fonte_label, fill=digit_color)
+        draw.text((x - 30, 150), labels[i], font=fonte_label, fill=digit_color)
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")

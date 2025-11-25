@@ -115,7 +115,12 @@
 </div>
 
 <script>
-document.getElementById('generate').addEventListener('click', function() {
+const generateBtn = document.getElementById('generate');
+const previewDiv = document.getElementById('preview');
+const codeDiv = document.getElementById('code');
+const copyBtn = document.getElementById('copyBtn');
+
+generateBtn.addEventListener('click', function() {
     const end = document.getElementById('end').value;
     const bg = encodeURIComponent(document.getElementById('bg').value);
     const digit = encodeURIComponent(document.getElementById('digit').value);
@@ -130,11 +135,10 @@ document.getElementById('generate').addEventListener('click', function() {
     const url = `${baseUrl}/countdown-image?end=${end}&bg=${bg}&digit=${digit}&box=${box}`;
 
     // Preview
-    document.getElementById('preview').innerHTML = `<img src="${url}&_t=${Date.now // Código para e-mail
-    const code = `<table align="center"><tbody><tr><td>${url}</td></tr></tbody></table>`;
-    document.getElementById('code').innerHTML = `<button class="copy-btn" id="copyBtn">Copiar</button>${code}`;
+    previewDiv.innerHTML = `<img src="${url}&_t=${Date.now()}" alt="Contagem regress const code = `<table align="center"><tbody><tr><td>${url}</td></tr></tbody></table>`;
+    codeDiv.innerHTML = `<button class="copy-btn" id="copyBtn">Copiar</button>${code}`;
 
-    // Botão copiar
+    // Reatribuir evento ao botão copiar
     document.getElementById('copyBtn').addEventListener('click', function() {
         navigator.clipboard.writeText(code).then(() => {
             this.textContent = 'Copiado!';

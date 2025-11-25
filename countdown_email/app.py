@@ -10,9 +10,7 @@ app = Flask(__name__)
 
 # ---------- Funções auxiliares ----------
 def load_font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
-    """
-    Carrega uma fonte TrueType segura. Faz fallback para ImageFont.load_default() se não encontrar.
-    """
+    """Carrega uma fonte TrueType segura. Faz fallback para ImageFont.load_default() se não encontrar."""
     candidates = [
         "arial.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -28,3 +26,108 @@ def load_font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 def parse_end_iso(end_str: str, tz):
+    """Aceita 'YYYY-MM-DDTHH:MM' ou 'YYYY-MM-DDTHH:MM:SS'. Adiciona segundos se faltar."""
+    if not end_str:
+        raise ValueError("Parâmetro 'end' ausente")
+    if len(end_str) == 16:  # YYYY-MM-DDTHH:MM
+        end_str += ":00"
+    dt = datetime.fromisoformat(end_str)
+    if dt.tzinfo is None:
+        dt = tz.localize(dt)
+    else:
+        dt = dt.astimezone(tz)
+    return dt
+
+def measure(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont):
+    """Mede texto com textbbox quando disponível."""
+    try:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        w = bbox[2] - bbox[0]
+        h = bbox[3] - bbox[1]
+        return w, h
+    except Exception:
+        return draw.textsize(text, font=font)
+
+@app.route("/")
+def home():
+    return send_from_directory(os.path.dirname(__file__), "index.html")
+
+@app.route("/countdown-image")
+def countdown_image():
+    # Parâmetros
+    end_date_str = request.args.get("end")
+    bg_color = request.args.get("bg", "#000000")
+    digit_color = request.args.get("digit", "#FFFFFF")
+    box_color = request.args.get("box", "#1E1E1E")
+
+    largura, altura = 900, 250
+    tz = pytz.timezone("America/Sao_Paulo")
+    now = datetime.now(tz)
+
+    # Parse seguro da data
+    try:
+        end_date = parse_end_iso(end_date_str, tz)
+    except Exception:
+        return ("Formato inválido. Use: YYYY-MM-DDTHH:MM ou YYYY-MM-DDTHH:MM:SS", 400)
+
+    # Cálculo do tempo restante
+    total_seconds = int((end_date - now).total_seconds())
+    if total_seconds <= 0:
+        dias = horas = minutos = segundos = 0
+    else:
+        dias = total_seconds // 86400
+        rem = total_seconds % 86400
+        horas = rem // 3600
+        rem %= 3600
+        minutos = rem // 60
+        segundos = rem % 60
+
+    # Fontes
+    fonte_num = load_font(80, bold=True)
+    fonte_label = load_font(28, bold=True)
+
+    # Criar imagem
+    img = Image.new("RGB", (largura, altura), color=bg_color)
+    draw = ImageDraw.Draw(img)
+
+    valores = [dias, horas, minutos, segundos]
+    labels = ["DIAS", "HORAS", "MINUTOS", "SEGUNDOS"]
+    bloco_largura = largura // 4
+
+    for i, valor in enumerate(valores):
+        x_center = i * bloco_largura + bloco_largura // 2
+        box_width = bloco_largura - 40
+        box_height = 150
+        box_x0 = x_center - box_width // 2
+        box_y0 = 40
+        box_x1 = box_x0 + box_width
+        box_y1 = box_y0 + box_height
+
+        # Caixa arredondada (fallback para rectangle)
+        if hasattr(draw, "rounded_rectangle"):
+            draw.rounded_rectangle([box_x0, box_y0, box_x1, box_y1], radius=20, fill=box_color)
+        else:
+            draw.rectangle([box_x0, box_y0, box_x1, box_y1], fill=box_color)
+
+        # Número
+        num_text = str(valor).zfill(2)
+        num_w, num_h = measure(draw, num_text, fonte_num)
+        draw.text((x_center - num_w // 2, box_y0 + 30), num_text, font=fonte_num, fill=digit_color)
+
+        # Label
+        label_text = labels[i]
+        label_w, label_h = measure(draw, label_text, fonte_label)
+        draw.text((x_center - label_w // 2, box_y1 - label_h - 10), label_text, font=fonte_label, fill=digit_color)
+
+    # Retornar imagem
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    buf.seek(0)
+
+    resp = make_response(send_file(buf, mimetype="image/png"))
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
+
+if __name__ == "__main__":

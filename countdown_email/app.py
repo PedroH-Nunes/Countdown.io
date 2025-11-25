@@ -25,6 +25,9 @@ def countdown_image():
 
     # Converter data final
     try:
+        # Adiciona segundos se não tiver
+        if len(end_date_str) == 16:  # formato YYYY-MM-DDTHH:MM
+            end_date_str += ":00"
         end_date = datetime.fromisoformat(end_date_str)
         if end_date.tzinfo is None:
             end_date = tz.localize(end_date)

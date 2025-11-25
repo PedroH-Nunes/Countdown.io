@@ -1,3 +1,4 @@
+
 services:
   - type: web
     name: countdown-email
@@ -5,5 +6,5 @@ services:
     buildCommand:
       - apt-get update && apt-get install -y libjpeg-dev zlib1g-dev
       - pip install --upgrade pip setuptools wheel
-      - pip install -r countdown_email/requirements.txt
-    startCommand: gunicorn countdown_email.app:app
+      - pip install -r requirements.txt
+    startCommand: gunicorn app:app

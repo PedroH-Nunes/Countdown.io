@@ -6,4 +6,4 @@ services:
       - apt-get update && apt-get install -y libjpeg-dev zlib1g-dev libfreetype6-dev liblcms2-dev libopenjp2-7-dev libtiff5-dev
       - pip install --upgrade pip setuptools wheel
       - pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn countdown_email.app:app --bind 0.0.0.0:$PORT

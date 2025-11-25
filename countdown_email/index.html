@@ -1,19 +1,22 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Gerador de Countdown</title>
+<title>Gerador de Countdown Dinâmico</title>
 <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .container { max-width: 400px; margin: auto; }
+    body { font-family: Arial, sans-serif; background: #000; color: #fff; text-align: center; }
+    .container { max-width: 500px; margin: auto; padding: 20px; }
     label { display: block; margin-top: 10px; }
     input[type="color"], input[type="datetime-local"] {
         width: 100%; padding: 8px; margin-top: 5px;
     }
     button { margin-top: 15px; padding: 10px; width: 100%; background: #1E3C78; color: #fff; border: none; cursor: pointer; }
     button:disabled { background: #ccc; cursor: not-allowed; }
-    .output { margin-top: 20px; word-break: break-all; }
-    .preview img { max-width: 100%; margin-top: 15px; border: 1px solid #ccc; }
+    .countdown { display: flex; justify-content: center; gap: 20px; margin-top: 40px; }
+    .box { background: #1E1E1E; padding: 20px; border-radius: 15px; width: 150px; }
+    .number { font-size: 60px; font-weight: bold; }
+    .label { font-size: 20px; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -28,10 +31,9 @@
     <label for="digit">Cor dos dígitos:</label>
     <input type="color" id="digit" value="#FFFFFF">
 
-    <button id="generateBtn" disabled onclick="generateURL()">Gerar URL</button>
+    <button id="generateBtn" disabled onclick="generateCountdown()">Gerar Countdown</button>
 
-    <div class="output" id="output"></div>
-    <div class="preview" id="preview"></div>
+    <div id="countdownContainer"></div>
 </div>
 
 <script>
@@ -41,20 +43,46 @@ endInput.addEventListener("input", () => {
     btn.disabled = !endInput.value;
 });
 
-function generateURL() {
-    const baseURL = window.location.origin + "/countdown";
-    const end = endInput.value;
-    const bg = document.getElementById("bg").value;
-    const digit = document.getElementById("digit").value;
+function generateCountdown() {
+    const endDate = new Date(endInput.value).getTime();
+    const bgColor = document.getElementById("bg").value;
+    const digitColor = document.getElementById("digit").value;
 
-    const url = `${baseURL}?end=${end}&bg=${encodeURIComponent(bg)}&digit=${encodeURIComponent(digit)}`;
-    document.getElementById("output").innerHTML = `
-        <p><strong>URL gerada:</strong></p>
-        <p>${url}</p>
-        <p>Use este código no e-mail:</p>
-        <code>&lt;img src="${url}" style="display:block;max-width:100%" /&gt;</code>
+    document.body.style.backgroundColor = bgColor;
+    document.body.style.color = digitColor;
+
+    document.getElementById("countdownContainer").innerHTML = `
+        <div class="countdown">
+            <div class="box"><div id="days" class="number">00</div><div class="label">DIAS</div></div>
+            <div class="box"><div id="hours" class="number">00</div><div class="label">HORAS</div></div>
+            <div class="box"><div id="minutes" class="number">00</div><div class="label">MINUTOS</div></div>
+            <div class="box"><div id="seconds" class="number">00</div><div class="label">SEGUNDOS</div></div>
+        </div>
     `;
-    document.getElementById("preview").innerHTML = `${url}`;
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const diff = endDate - now;
+
+        if (diff <= 0) {
+            document.getElementById("countdownContainer").innerHTML = "<h3>Oferta encerrada!</h3>";
+            clearInterval(interval);
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById("days").textContent = String(days).padStart(2, '0');
+        document.getElementById("hours").textContent = String(hours).padStart(2, '0');
+        document.getElementById("minutes").textContent = String(minutes).padStart(2, '0');
+        document.getElementById("seconds").textContent = String(seconds).padStart(2, '0');
+    }
+
+    const interval = setInterval(updateCountdown, 1000);
+    updateCountdown();
 }
 </script>
 </body>
